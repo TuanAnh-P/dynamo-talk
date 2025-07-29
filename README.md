@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DynamoTalk - Serverless Chat Application
+
+A real-time chat application built with AWS serverless services, Next.js, and Tailwind CSS.
+
+## Architecture
+
+This application uses AWS serverless services for scalability and cost-effectiveness:
+
+**Backend Services:**
+
+- AWS Lambda - API logic and message processing
+- DynamoDB - Message storage and user data
+- API Gateway - RESTful API endpoints
+- WebSocket API - Real-time communication
+- Cognito - User authentication
+- S3 - File uploads and avatars
+- CloudFront - Content delivery
+
+**Frontend:**
+
+- Next.js 14 with App Router
+- TypeScript
+- Tailwind CSS
+- AWS SDK integration
+
+## Database Design
+
+**Users Table**
+
+```
+PK: USER#{userId}
+Attributes: username, email, avatar, createdAt, lastSeen
+```
+
+**Rooms Table**
+
+```
+PK: ROOM#{roomId}
+Attributes: name, description, type, createdBy, members[]
+```
+
+**Messages Table**
+
+```
+PK: ROOM#{roomId}
+SK: MESSAGE#{timestamp}#{messageId}
+Attributes: userId, content, messageType, attachments
+```
+
+**Connections Table**
+
+```
+PK: CONNECTION#{connectionId}
+Attributes: userId, roomId, connectedAt
+```
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create `.env.local`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+NEXT_PUBLIC_AWS_REGION=us-east-1
+NEXT_PUBLIC_USER_POOL_ID=your-user-pool-id
+NEXT_PUBLIC_USER_POOL_CLIENT_ID=your-app-client-id
+NEXT_PUBLIC_API_URL=your-api-gateway-url
+NEXT_PUBLIC_WEBSOCKET_URL=your-websocket-api-url
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
+```
+src/
+├── app/                 # Next.js App Router
+├── components/          # React components
+├── lib/                # Utilities and AWS config
+└── types/              # TypeScript definitions
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+aws/
+├── lambda/             # Lambda functions
+├── dynamodb/          # Table definitions
+└── infrastructure/    # CloudFormation/CDK
+```

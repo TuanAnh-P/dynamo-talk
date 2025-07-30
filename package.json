@@ -7,7 +7,11 @@
     "dev:https": "next dev --experimental-https",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "infra:deploy": "./scripts/deploy-infrastructure.sh",
+    "infra:destroy": "./scripts/destroy-infrastructure.sh",
+    "infra:diff": "cd infrastructure && npm run build && npx cdk diff",
+    "infra:synth": "cd infrastructure && npm run build && npx cdk synth"
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.855.0",
@@ -22,9 +26,11 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^20.19.9",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "aws-cdk-lib": "^2.208.0",
+    "constructs": "^10.4.2",
     "eslint": "^9",
     "eslint-config-next": "15.4.4",
     "tailwindcss": "^4",

@@ -56,19 +56,36 @@ Attributes: userId, roomId, connectedAt
 
 ## Getting Started
 
+### 1. Install Dependencies
+
 ```bash
 npm install
+```
+
+### 2. Deploy AWS Infrastructure
+
+```bash
+npm run infra:deploy
+```
+
+This creates all AWS resources (Cognito, DynamoDB) automatically.
+
+### 3. Configure Environment
+
+Copy the output values to `.env.local` - see [INFRASTRUCTURE.md](./INFRASTRUCTURE.md) for details.
+
+### 4. Start Development
+
+```bash
 npm run dev
 ```
 
-Create `.env.local`:
+## Infrastructure Management
 
-```env
-NEXT_PUBLIC_AWS_REGION=us-east-1
-NEXT_PUBLIC_USER_POOL_ID=your-user-pool-id
-NEXT_PUBLIC_USER_POOL_CLIENT_ID=your-app-client-id
-NEXT_PUBLIC_API_URL=your-api-gateway-url
-NEXT_PUBLIC_WEBSOCKET_URL=your-websocket-api-url
+```bash
+npm run infra:deploy   # Deploy AWS infrastructure
+npm run infra:diff     # Preview changes
+npm run infra:destroy  # Remove all AWS resources
 ```
 
 ## Project Structure
@@ -80,8 +97,9 @@ src/
 ├── lib/                # Utilities and AWS config
 └── types/              # TypeScript definitions
 
-aws/
-├── lambda/             # Lambda functions
-├── dynamodb/          # Table definitions
-└── infrastructure/    # CloudFormation/CDK
+infrastructure/
+├── lib/                # CDK stack definitions
+└── bin/                # CDK app entry point
+
+scripts/                # Deployment scripts
 ```

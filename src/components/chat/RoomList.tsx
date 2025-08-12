@@ -6,18 +6,23 @@ interface RoomListProps {
   rooms: Room[];
   currentRoom: Room | null;
   onRoomSelect: (room: Room) => void;
+  onCreateRoom?: () => void;
 }
 
 export default function RoomList({
   rooms,
   currentRoom,
   onRoomSelect,
+  onCreateRoom,
 }: RoomListProps) {
   return (
     <div className='p-4 space-y-2'>
       <div className='flex items-center justify-between mb-4'>
         <h2 className='text-lg font-semibold text-gray-900'>Rooms</h2>
-        <button className='text-blue-600 hover:text-blue-700 text-sm font-medium'>
+        <button
+          onClick={onCreateRoom}
+          className='text-blue-600 hover:text-blue-700 text-sm font-medium'
+        >
           + New
         </button>
       </div>

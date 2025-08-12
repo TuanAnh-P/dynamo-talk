@@ -16,28 +16,27 @@ exports.handler = async (event) => {
   };
 
   try {
-    // Extract user ID from JWT token (simplified for demo)
-    const authHeader =
-      event.headers?.Authorization || event.headers?.authorization;
-    if (!authHeader) {
+    // Get user ID from Cognito authorizer context
+    const userId = event.requestContext?.authorizer?.claims?.sub;
+    if (!userId) {
       return {
         statusCode: 401,
         headers,
         body: JSON.stringify({
           success: false,
-          error: "Authorization header required",
+          error: "User not authenticated",
         }),
       };
     }
 
-    // Query user's rooms using GSI
+    // Query rooms created by the user using GSI
     const result = await docClient.send(
       new QueryCommand({
         TableName: process.env.ROOMS_TABLE,
-        IndexName: "GSI1",
-        KeyConditionExpression: "GSI1PK = :pk",
+        IndexName: "createdBy-index",
+        KeyConditionExpression: "createdBy = :userId",
         ExpressionAttributeValues: {
-          ":pk": "ROOMS",
+          ":userId": userId,
         },
       })
     );

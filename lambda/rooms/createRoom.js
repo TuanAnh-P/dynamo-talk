@@ -28,22 +28,20 @@ exports.handler = async (event) => {
       };
     }
 
-    // Extract user ID from JWT token (simplified for demo)
-    const authHeader =
-      event.headers?.Authorization || event.headers?.authorization;
-    if (!authHeader) {
+    // Get user ID from Cognito authorizer context
+    const userId = event.requestContext?.authorizer?.claims?.sub;
+    if (!userId) {
       return {
         statusCode: 401,
         headers,
         body: JSON.stringify({
           success: false,
-          error: "Authorization header required",
+          error: "User not authenticated",
         }),
       };
     }
 
-    // For demo purposes, using a placeholder user ID
-    const createdBy = "demo-user-id";
+    const createdBy = userId;
     const roomId = randomUUID();
     const now = new Date().toISOString();
 

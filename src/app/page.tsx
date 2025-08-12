@@ -4,105 +4,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useRooms } from "@/lib/hooks/useRooms";
+import { useMessages } from "@/lib/hooks/useMessages";
 import ChatLayout from "@/components/chat/ChatLayout";
 import RoomList from "@/components/chat/RoomList";
 import MessageArea from "@/components/chat/MessageArea";
-import { Room, Message } from "@/types";
+import { Room } from "@/types";
 
-// Mock data for demonstration
-
-const mockRooms: Room[] = [
-  {
-    id: "room-1",
-    name: "General",
-    description: "General discussion",
-    type: "group",
-    createdBy: "user-1",
-    members: ["user-1", "user-2", "user-3"],
-    createdAt: new Date().toISOString(),
-    lastMessage: {
-      id: "msg-1",
-      roomId: "room-1",
-      userId: "user-2",
-      content: "Hey everyone! Welcome to DynamoTalk",
-      messageType: "text",
-      createdAt: new Date().toISOString(),
-    },
-  },
-  {
-    id: "room-2",
-    name: "Development",
-    description: "Development discussions",
-    type: "group",
-    createdBy: "user-1",
-    members: ["user-1", "user-2"],
-    createdAt: new Date().toISOString(),
-    lastMessage: {
-      id: "msg-2",
-      roomId: "room-2",
-      userId: "user-1",
-      content: "The serverless setup is looking great!",
-      messageType: "text",
-      createdAt: new Date().toISOString(),
-    },
-  },
-  {
-    id: "room-3",
-    name: "Direct Message",
-    type: "direct",
-    createdBy: "user-2",
-    members: ["user-1", "user-2"],
-    createdAt: new Date().toISOString(),
-  },
-];
-
-const mockMessages: { [roomId: string]: Message[] } = {
-  "room-1": [
-    {
-      id: "msg-1",
-      roomId: "room-1",
-      userId: "user-2",
-      content: "Hey everyone! Welcome to DynamoTalk",
-      messageType: "text",
-      createdAt: new Date(Date.now() - 3600000).toISOString(),
-    },
-    {
-      id: "msg-2",
-      roomId: "room-1",
-      userId: "user-1",
-      content: "Thanks! This looks amazing. Love the Tailwind CSS styling.",
-      messageType: "text",
-      createdAt: new Date(Date.now() - 1800000).toISOString(),
-    },
-    {
-      id: "msg-3",
-      roomId: "room-1",
-      userId: "user-3",
-      content: "The AWS serverless architecture is really impressive!",
-      messageType: "text",
-      createdAt: new Date(Date.now() - 900000).toISOString(),
-    },
-  ],
-  "room-2": [
-    {
-      id: "msg-4",
-      roomId: "room-2",
-      userId: "user-1",
-      content: "The serverless setup is looking great!",
-      messageType: "text",
-      createdAt: new Date(Date.now() - 600000).toISOString(),
-    },
-    {
-      id: "msg-5",
-      roomId: "room-2",
-      userId: "user-2",
-      content: "DynamoDB tables are all configured. Ready for the next phase!",
-      messageType: "text",
-      createdAt: new Date(Date.now() - 300000).toISOString(),
-    },
-  ],
-  "room-3": [],
-};
+// Real chat application using AWS services
 
 export default function HomePage() {
   const { isAuthenticated, user, loading } = useAuth();
@@ -112,11 +20,14 @@ export default function HomePage() {
     error: roomsError,
     createNewRoom,
   } = useRooms();
+  const {
+    messages,
+    error: messagesError,
+    loadMessages,
+    sendNewMessage,
+  } = useMessages();
   const router = useRouter();
   const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
-  const [messages, setMessages] = useState<{ [roomId: string]: Message[] }>(
-    mockMessages
-  );
 
   // Set first room as current when rooms load
   useEffect(() => {
@@ -124,6 +35,14 @@ export default function HomePage() {
       setCurrentRoom(rooms[0]);
     }
   }, [rooms, currentRoom]);
+
+  // Load messages when current room changes
+  useEffect(() => {
+    if (currentRoom) {
+      console.log("Loading messages for room:", currentRoom.id);
+      loadMessages(currentRoom.id);
+    }
+  }, [currentRoom, loadMessages]);
 
   // Redirect to auth page if not authenticated
   useEffect(() => {
@@ -155,22 +74,18 @@ export default function HomePage() {
     setCurrentRoom(room);
   };
 
-  const handleSendMessage = (content: string) => {
+  const handleSendMessage = async (content: string) => {
     if (!currentRoom || !user) return;
 
-    const newMessage: Message = {
-      id: `msg-${Date.now()}`,
-      roomId: currentRoom.id,
-      userId: user.id,
-      content,
-      messageType: "text",
-      createdAt: new Date().toISOString(),
-    };
+    console.log("Sending message:", content, "to room:", currentRoom.id);
+    const success = await sendNewMessage(currentRoom.id, content);
 
-    setMessages((prev) => ({
-      ...prev,
-      [currentRoom.id]: [...(prev[currentRoom.id] || []), newMessage],
-    }));
+    if (!success) {
+      console.error("Failed to send message");
+      // Could show a toast or error message here
+    } else {
+      console.log("Message sent successfully");
+    }
   };
 
   const handleCreateRoom = async () => {
@@ -209,6 +124,11 @@ export default function HomePage() {
         </div>
       </div>
     );
+  }
+
+  // Show messages error if there's one (but don't block the entire page)
+  if (messagesError) {
+    console.error("Messages error:", messagesError);
   }
 
   // Show empty state if no rooms

@@ -45,12 +45,9 @@ exports.handler = async (event) => {
     const now = new Date().toISOString();
 
     const message = {
-      PK: `ROOM#${roomId}`,
-      SK: `MESSAGE#${now}#${messageId}`,
-      GSI1PK: `USER#${userId}`,
-      GSI1SK: now,
+      roomId: roomId,
+      sortKey: `MESSAGE#${now}#${messageId}`,
       id: messageId,
-      roomId,
       userId,
       content,
       messageType,

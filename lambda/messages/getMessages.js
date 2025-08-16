@@ -48,9 +48,9 @@ exports.handler = async (event) => {
 
     const queryParams = {
       TableName: process.env.MESSAGES_TABLE,
-      KeyConditionExpression: "PK = :pk",
+      KeyConditionExpression: "roomId = :roomId",
       ExpressionAttributeValues: {
-        ":pk": `ROOM#${roomId}`,
+        ":roomId": roomId,
       },
       ScanIndexForward: false, // Get newest messages first
       Limit: limit,

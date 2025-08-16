@@ -23,8 +23,11 @@ export default function HomePage() {
   const {
     messages,
     error: messagesError,
+    isConnected,
     loadMessages,
     sendNewMessage,
+    joinRoom,
+    leaveRoom,
   } = useMessages();
   const router = useRouter();
   const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
@@ -36,13 +39,28 @@ export default function HomePage() {
     }
   }, [rooms, currentRoom]);
 
-  // Load messages when current room changes
+  // Load messages and join room when current room changes
   useEffect(() => {
     if (currentRoom) {
       console.log("Loading messages for room:", currentRoom.id);
       loadMessages(currentRoom.id);
+
+      // Join the WebSocket room for real-time updates
+      if (isConnected) {
+        joinRoom(currentRoom.id);
+      }
     }
-  }, [currentRoom, loadMessages]);
+  }, [currentRoom, loadMessages, joinRoom, isConnected]);
+
+  // Leave the previous room when switching rooms
+  const [previousRoom, setPreviousRoom] = useState<Room | null>(null);
+  useEffect(() => {
+    if (previousRoom && previousRoom.id !== currentRoom?.id && isConnected) {
+      console.log("Leaving previous room:", previousRoom.id);
+      leaveRoom(previousRoom.id);
+    }
+    setPreviousRoom(currentRoom);
+  }, [currentRoom, previousRoom, leaveRoom, isConnected]);
 
   // Redirect to auth page if not authenticated
   useEffect(() => {
@@ -181,6 +199,7 @@ export default function HomePage() {
         messages={currentMessages}
         currentUser={user}
         onSendMessage={handleSendMessage}
+        isConnected={isConnected}
       />
     </ChatLayout>
   );

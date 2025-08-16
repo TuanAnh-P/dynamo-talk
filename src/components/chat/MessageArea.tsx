@@ -9,6 +9,7 @@ interface MessageAreaProps {
   messages: Message[];
   currentUser: User | null;
   onSendMessage: (content: string) => void;
+  isConnected?: boolean;
 }
 
 export default function MessageArea({
@@ -16,6 +17,7 @@ export default function MessageArea({
   messages,
   currentUser,
   onSendMessage,
+  isConnected = false,
 }: MessageAreaProps) {
   const [message, setMessage] = useState("");
 
@@ -59,6 +61,18 @@ export default function MessageArea({
             </p>
           </div>
           <div className='flex items-center space-x-2'>
+            {/* Connection Status */}
+            <div className='flex items-center space-x-1'>
+              <span
+                className={`inline-block w-2 h-2 rounded-full ${
+                  isConnected ? "bg-green-400" : "bg-red-400"
+                }`}
+              />
+              <span className='text-xs text-gray-500'>
+                {isConnected ? "Connected" : "Offline"}
+              </span>
+            </div>
+            {/* Room Type */}
             <span
               className={`
               inline-block w-3 h-3 rounded-full
@@ -88,21 +102,21 @@ export default function MessageArea({
                   ${
                     msg.userId === currentUser?.id
                       ? "bg-blue-600 text-white"
-                      : "bg-white border border-gray-200 text-gray-900"
+                      : "bg-gray-100 border border-gray-300 text-gray-900"
                   }
                 `}
               >
                 {msg.userId !== currentUser?.id && (
-                  <p className='text-xs text-gray-500 mb-1'>
+                  <p className='text-xs text-gray-600 mb-1 font-medium'>
                     User {msg.userId.slice(-4)}
                   </p>
                 )}
-                <p className='text-sm'>{msg.content}</p>
+                <p className='text-sm font-medium'>{msg.content}</p>
                 <p
                   className={`text-xs mt-1 ${
                     msg.userId === currentUser?.id
-                      ? "text-blue-100"
-                      : "text-gray-500"
+                      ? "text-blue-200"
+                      : "text-gray-600"
                   }`}
                 >
                   {new Date(msg.createdAt).toLocaleTimeString("en-US", {
@@ -116,9 +130,11 @@ export default function MessageArea({
           ))
         ) : (
           <div className='flex-1 flex items-center justify-center'>
-            <div className='text-center text-gray-500'>
-              <p className='text-sm'>No messages yet</p>
-              <p className='text-xs mt-1'>Start the conversation!</p>
+            <div className='text-center text-gray-700'>
+              <p className='text-base font-medium'>No messages yet</p>
+              <p className='text-sm mt-1 text-gray-600'>
+                Start the conversation!
+              </p>
             </div>
           </div>
         )}
@@ -132,7 +148,7 @@ export default function MessageArea({
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder={`Message ${room.name}...`}
-            className='flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+            className='flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500'
             rows={1}
           />
           <Button
